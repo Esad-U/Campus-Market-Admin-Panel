@@ -1,10 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>CampusMarket Admin Panel</title>
 </head>
 <body>
-$END$
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-info">
+            {{ message }}
+        </div>
+    {% endfor %}
+    <div class="container" style="margin-top: 50px; margin-bottom: 100px;">
+        <div class="jumbotron text-center">
+            <h1>CampusMarket Administrator Panel</h1>
+            <form method="post" action="" name="login">
+                {{ form.csrf_token }}
+              <div class="form-group">
+                  {{ form.email.label }}
+                {{ form.email(required=True, autofocus=True, class='form-control', placeholder='Your email') }}
+              </div>
+                {% for error in form.email.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+              <div class="form-group">
+                  {{ form.password.label }}
+                {{ form.password(required=True, class='form-control', placeholder='Your password') }}
+              </div>
+                {% for error in form.password.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+                <br>
+              <button class="btn btn-primary btn-block mb-4">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
 </body>
 </html>
