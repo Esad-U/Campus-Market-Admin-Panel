@@ -16,3 +16,8 @@ class AddUserForm(FlaskForm):
     address = StringField("Address", validators=[DataRequired()])
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
+
+
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField("Password", validators=[DataRequired()])
+    validation = PasswordField("Password Again", validators=[DataRequired()])

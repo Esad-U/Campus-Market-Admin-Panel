@@ -29,7 +29,7 @@ class Database:
     def get_users(self):
         with MongoClient(host=self.url, port=self.port) as client:
             db = client[self.dbname]
-            users = db['users'].find()
+            users = db['users'].find().sort('role', 1)
 
             if users is not None:
                 user_list = [a for a in users]
@@ -65,3 +65,9 @@ class Database:
             })
 
         return inserted_id
+
+    def update_password(self, user, new_pw):
+        with MongoClient(host=self.url, port=self.port) as client:
+            db = client[self.dbname]
+
+            db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})

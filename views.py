@@ -82,3 +82,24 @@ def add_user_page():
             flash('A user with this email already exists')
 
     return render_template('add_user_page.html', form=form)
+
+
+@login_required
+def profile_page():
+    return render_template('user_profile.html', user=current_user)
+
+
+@login_required
+def change_password_page():
+    form = ChangePasswordForm()
+
+    if form.validate_on_submit():
+        if form.data['password'] != form.data['validation']:
+            flash('Two passwords do not match. Enter again!')
+        else:
+            new_pw = hasher.hash(form.data['password'])
+            current_app.config['dbconfig'].update_password(current_user, new_pw)
+
+            return redirect(url_for('profile_page'))
+
+    return render_template('change_password.html', form=form)

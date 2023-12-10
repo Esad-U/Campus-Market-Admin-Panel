@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %} User Profile {% endblock %}
+
+{% block body %}
+    <h1>User Profile</h1>
+    <hr>
+    <div class="card card-body">
+        <table class="table is-fullwidth table-hover">
+            <tr>
+                <th>Name</th>
+                <td>{{ user.name }}</td>
+            </tr>
+            <tr>
+                <th>Surname</th>
+                <td>{{ user.surname }}</td>
+            </tr>
+            <tr>
+                <th>E-Mail Address</th>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{ user.address }}</td>
+            </tr>
+            <tr>
+                <th>Role</th>
+                <td>{{ user.role }}</td>
+            </tr>
+            <tr>
+                <th>Registration Date</th>
+                <td>{{ user.created_at }}</td>
+            </tr>
+            <tr>
+                <th>Rate</th>
+                <td>{{ user.rate }}</td>
+            </tr>
+            <tr>
+                <th><a href="{{ url_for('change_password_page') }}" class="btn btn-primary">Change Password</a></th>
+            </tr>
+        </table>
+    </div>
+{% endblock %}
