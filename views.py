@@ -11,7 +11,7 @@ def index():
         # print("entered validation")
         email = form.data["email"]
         user = get_user(email)
-        if user is not None:
+        if user is not None and user.role == 'admin':
             # print("found customer")
             password = form.data["password"]
             if hasher.verify(password, user.password):
