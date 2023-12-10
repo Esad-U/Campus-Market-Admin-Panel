@@ -3,11 +3,11 @@ from datetime import datetime
 
 
 class User(UserMixin):
-    def __init__(self, _id: str, email: str, password: str, name: str, surname: str, role: str,
+    def __init__(self, id: str, email: str, password: str, name: str, surname: str, role: str,
                  address: str, created_at: str = str(datetime.now()), rate: float = 0, products: list = None,
                  comments: list = None, chats: list = None, blocked: bool = False, verified: bool = False,
                  verification_code: int = -1, profile_img_url: str = "deneme.url"):
-        self._id = _id
+        self.id = id
         self.chats = chats
         self.email = email
         self.password = password

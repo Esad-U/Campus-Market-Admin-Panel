@@ -7,16 +7,17 @@ from models.user import User
 
 
 def index():
+    if current_user.is_authenticated:
+        # Redirect them away from the intended URL (e.g., a form submission URL)
+        return redirect(url_for('home'))
+
     form = LoginForm()
     if form.validate_on_submit():
-        # print("entered validation")
         email = form.data["email"]
         user = get_user(email)
         if user is not None and user.role == 'admin':
-            # print("found customer")
             password = form.data["password"]
             if hasher.verify(password, user.password):
-                # print("verified customer")
                 login_user(user)
                 flash("You have logged in")
                 next_page = request.args.get("next", url_for("home"))
@@ -51,7 +52,10 @@ def users_page():
             flash("Choose users to delete.")
         else:
             for key in form_user_keys:
-                db.delete_user(key)
+                if key != str(current_user.id):
+                    db.delete_user(key)
+                else:
+                    flash("You cannot delete your own user.")
         return redirect(url_for("users_page"))
 
 
@@ -72,6 +76,7 @@ def add_user_page():
             new_user = User(_id="", name=name, surname=surname, role=role, address=address, email=email,
                             password=password)
             db.insert_user(new_user)
+
             return redirect(url_for('users_page'))
         else:
             flash('A user with this email already exists')

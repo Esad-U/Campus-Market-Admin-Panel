@@ -15,7 +15,7 @@ class Database:
             user = db['users'].find_one({'email': email})
 
         if user is not None:
-            found_user = User(chats=user['chats'], _id=user['_id'], email=user['email'], password=user['password'],
+            found_user = User(chats=user['chats'], id=user['_id'], email=user['email'], password=user['password'],
                               name=user['name'], surname=user['surname'], role=user['role'],
                               created_at=user['created_at'], blocked=user['blocked'], verified=user['verified'],
                               verification_code=user['verificationCode'], address=user['address'], rate=user['rate'],
