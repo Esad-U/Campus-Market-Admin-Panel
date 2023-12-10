@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson import ObjectId
 from models.user import User
 
 class Database:
@@ -14,10 +15,11 @@ class Database:
 
         if user is not None:
             found_user = User(chats=user['chats'], id=user['_id'], email=user['email'], password=user['password'],
-                    name=user['name'], surname=user['surname'], role=user['role'], created_at=user['created_at'],
-                    blocked=user['blocked'], verified=user['verified'], verification_code=user['verificationCode'],
-                    address=user['address'], rate=user['rate'], profile_img_url=user['profile_image_url'],
-                    products=user['products'], comments=user['comments'])
+                              name=user['name'], surname=user['surname'], role=user['role'],
+                              created_at=user['created_at'], blocked=user['blocked'], verified=user['verified'],
+                              verification_code=user['verificationCode'], address=user['address'], rate=user['rate'],
+                              profile_img_url=user['profile_image_url'], products=user['products'],
+                              comments=user['comments'])
         else:
             found_user = None
 
@@ -34,3 +36,8 @@ class Database:
                 user_list = None
 
         return user_list
+
+    def delete_user(self, _id):
+        with MongoClient(host=self.url, port=self.port) as client:
+            db = client[self.dbname]
+            db['users'].delete_one({'_id': ObjectId(_id)})

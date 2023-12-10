@@ -40,6 +40,15 @@ def logout():
 @login_required
 def users_page():
     db = current_app.config["dbconfig"]
-    users = db.get_users()
 
-    return render_template("users.html", users=users)
+    if request.method == 'GET':
+        users = db.get_users()
+        return render_template("users.html", users=users)
+    else:
+        form_user_keys = request.form.getlist("user_keys")
+        if len(form_user_keys) == 0:
+            flash("Choose users to delete.")
+        else:
+            for key in form_user_keys:
+                db.delete_user(key)
+        return redirect(url_for("users_page"))

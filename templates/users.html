@@ -7,49 +7,60 @@
   <hr>
 
   {% if users %}
-    <table class="table is-striped is-fullwidth">
-      <tr>
-        <th>User Id</th>
-        <th>Name</th>
-        <th>Surname</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Verified</th>
-        <th>Verification Code</th>
-        <th>Blocked</th>
-        <th>Rate</th>
-      </tr>
-      {% for user in users %}
-      <tr>
-        <td>
-          {{ user._id }}
-        </td>
-        <td>
-          {{ user.name }}
-        </td>
-        <td>
-          {{ user.surname }}
-        </td>
-        <td>
-          {{ user.email }}
-        </td>
-        <td>
-          {{ user.role }}
-        </td>
-        <td>
-          {{ user.verified }}
-        </td>
-        <td>
-          {{ user.verificationCode }}
-        </td>
-        <td>
-          {{ user.blocked }}
-        </td>
-        <td>
-          {{ user.rate }}
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
+    <form action="" method="post" name="users_list" onsubmit="return confirm('Are you sure you wish to delete?');">
+      <div class="form-group">
+        <button class="btn btn-danger btn-md">Delete Selected Users</button>
+      </div>
+      <table class="table is-striped is-fullwidth">
+        <tr>
+          <th>Select</th>
+          <th>User Id</th>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Verified</th>
+          <th>Verification Code</th>
+          <th>Blocked</th>
+          <th>Rate</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+          <td>
+            <label class="checkbox">
+              <input type="checkbox" name="user_keys" value="{{ user._id }}"/>
+            </label>
+          </td>
+          <td>
+            {{ user._id }}
+          </td>
+          <td>
+            {{ user.name }}
+          </td>
+          <td>
+            {{ user.surname }}
+          </td>
+          <td>
+            {{ user.email }}
+          </td>
+          <td>
+            {{ user.role }}
+          </td>
+          <td>
+            {{ user.verified }}
+          </td>
+          <td>
+            {{ user.verificationCode }}
+          </td>
+          <td>
+            {{ user.blocked }}
+          </td>
+          <td>
+            {{ user.rate }}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </form>
   {% endif %}
 {% endblock %}
