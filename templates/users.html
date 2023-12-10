@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block body %}
+  <h1 class="title">Users List</h1>
+  <hr>
+
+  {% if users %}
+    <table class="table is-striped is-fullwidth">
+      <tr>
+        <th>User Id</th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Verified</th>
+        <th>Verification Code</th>
+        <th>Blocked</th>
+        <th>Rate</th>
+      </tr>
+      {% for user in users %}
+      <tr>
+        <td>
+          {{ user._id }}
+        </td>
+        <td>
+          {{ user.name }}
+        </td>
+        <td>
+          {{ user.surname }}
+        </td>
+        <td>
+          {{ user.email }}
+        </td>
+        <td>
+          {{ user.role }}
+        </td>
+        <td>
+          {{ user.verified }}
+        </td>
+        <td>
+          {{ user.verificationCode }}
+        </td>
+        <td>
+          {{ user.blocked }}
+        </td>
+        <td>
+          {{ user.rate }}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% endblock %}

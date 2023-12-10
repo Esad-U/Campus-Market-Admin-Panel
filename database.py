@@ -22,3 +22,15 @@ class Database:
             found_user = None
 
         return found_user
+
+    def get_users(self):
+        with MongoClient(host=self.url, port=self.port) as client:
+            db = client[self.dbname]
+            users = db['users'].find()
+
+            if users is not None:
+                user_list = [a for a in users]
+            else:
+                user_list = None
+
+        return user_list

@@ -35,3 +35,11 @@ def logout():
     flash("You have logged out")
 
     return redirect(url_for("index"))
+
+
+@login_required
+def users_page():
+    db = current_app.config["dbconfig"]
+    users = db.get_users()
+
+    return render_template("users.html", users=users)
