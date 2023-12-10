@@ -3,6 +3,7 @@ import views
 from pymongo import MongoClient
 from flask_login import LoginManager
 from login_functions import get_user
+from database import Database
 
 lm = LoginManager()
 
@@ -12,11 +13,6 @@ def load_user(user_id):
     return get_user(user_id)
 
 
-client = MongoClient('localhost', 27017)
-
-db = client.CampusMarket
-
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object("settings")
@@ -24,7 +20,7 @@ def create_app():
     app.add_url_rule("/", view_func=views.index, methods=["GET", "POST"])
     app.add_url_rule("/home", view_func=views.home)
 
-    app.config["dbconfig"] = db
+    app.config["dbconfig"] = Database(url='localhost', port=27017, dbname='CampusMarket')
 
     lm.init_app(app)
     lm.login_view = "index"
