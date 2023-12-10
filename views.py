@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from passlib.hash import pbkdf2_sha256 as hasher
 from forms import *
 from login_functions import get_user
+from models.user import User
 
 
 def index():
@@ -52,3 +53,27 @@ def users_page():
             for key in form_user_keys:
                 db.delete_user(key)
         return redirect(url_for("users_page"))
+
+
+@login_required
+def add_user_page():
+    form = AddUserForm()
+    db = current_app.config["dbconfig"]
+
+    if form.validate_on_submit():
+        name = form.data['name']
+        surname = form.data['surname']
+        role = form.data['role']
+        address = form.data['address']
+        email = form.data['email']
+        password = hasher.hash(form.data['password'])
+
+        if db.get_user_by_email(email) is None:
+            new_user = User(_id="", name=name, surname=surname, role=role, address=address, email=email,
+                            password=password)
+            db.insert_user(new_user)
+            return redirect(url_for('users_page'))
+        else:
+            flash('A user with this email already exists')
+
+    return render_template('add_user_page.html', form=form)

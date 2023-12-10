@@ -21,6 +21,7 @@ def create_app():
     app.add_url_rule("/home", view_func=views.home)
     app.add_url_rule("/logout", view_func=views.logout)
     app.add_url_rule("/users", view_func=views.users_page, methods=["GET", "POST"])
+    app.add_url_rule("/adduser", view_func=views.add_user_page, methods=["GET", "POST"])
 
     app.config["dbconfig"] = Database(url='localhost', port=27017, dbname='CampusMarket')
 

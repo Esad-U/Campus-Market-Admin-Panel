@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from bson import ObjectId
 from models.user import User
+from datetime import datetime
 
 class Database:
     def __init__(self, url: str, port: int, dbname: str):
@@ -14,7 +15,7 @@ class Database:
             user = db['users'].find_one({'email': email})
 
         if user is not None:
-            found_user = User(chats=user['chats'], id=user['_id'], email=user['email'], password=user['password'],
+            found_user = User(chats=user['chats'], _id=user['_id'], email=user['email'], password=user['password'],
                               name=user['name'], surname=user['surname'], role=user['role'],
                               created_at=user['created_at'], blocked=user['blocked'], verified=user['verified'],
                               verification_code=user['verificationCode'], address=user['address'], rate=user['rate'],
@@ -41,3 +42,26 @@ class Database:
         with MongoClient(host=self.url, port=self.port) as client:
             db = client[self.dbname]
             db['users'].delete_one({'_id': ObjectId(_id)})
+
+    def insert_user(self, user):
+        with MongoClient(host=self.url, port=self.port) as client:
+            db = client[self.dbname]
+            inserted_id = db['users'].insert_one({
+                'chats': user.chats,
+                'email': user.email,
+                'password': user.password,
+                'name': user.name,
+                'surname': user.surname,
+                'role': user.role,
+                'created_at': user.created_at,
+                'blocked': user.blocked,
+                'verified': user.verified,
+                'verificationCode': user.verification_code,
+                'address': user.address,
+                'rate': user.rate,
+                'profile_image_url': user.profile_img_url,
+                'products': user.products,
+                'comments': user.comments
+            })
+
+        return inserted_id

@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}Add User{% endblock %}
+
+{% block body %}
+  <h1>Add User Form</h1>
+  <hr>
+  <div>
+    <form action="" method="post">
+      {{ form.csrf_token }}
+      <div class="form-group">
+        <label for="name" class="col-form-label">Name:</label>
+        {{ form.name(required=True, autofocus=True, class='form-control', placeholder='Name') }}
+      </div>
+      {% for error in form.name.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endfor %}
+      <div class="form-group">
+        <label for="surname" class="col-form-label">Surname:</label>
+        {{ form.surname(required=True, autofocus=False, class='form-control', placeholder='Surname') }}
+      </div>
+      {% for error in form.surname.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endfor %}
+      <div class="form-group">
+        <label for="role" class="col-form-label">Role:</label>
+        {{ form.role(required=True, autofocus=False, class='form-control') }}
+      </div>
+      {% for error in form.role.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endfor %}
+      <div class="form-group">
+        <label for="address" class="col-form-label">Address:</label>
+        {{ form.address(required=True, autofocus=False, class='form-control', placeholder='Address') }}
+      </div>
+      {% for error in form.address.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endfor %}
+      <div class="form-group">
+        <label for="email" class="col-form-label">E-Mail:</label>
+        {{ form.email(required=True, autofocus=False, class='form-control', placeholder='Email') }}
+      </div>
+      {% for error in form.email.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endfor %}
+      <div class="form-group">
+        <label for="password" class="col-form-label">Password:</label>
+        {{ form.password(required=True, autofocus=False, class='form-control', placeholder='Password') }}
+      </div>
+      {% for error in form.password.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endfor %}
+
+      <button class="btn btn-primary btn-block mb-4">Save</button>
+    </form>
+  </div>
+{% endblock %}

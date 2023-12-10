@@ -1,12 +1,14 @@
 from flask_login import UserMixin
+from datetime import datetime
 
 
 class User(UserMixin):
-    def __init__(self, chats: list, id: int, email: str, password: str, name: str, surname: str, role: str,
-                 created_at: str, blocked: bool, verified: bool, verification_code: int, address: str, rate: float,
-                 profile_img_url: str, products: list, comments: list):
+    def __init__(self, _id: str, email: str, password: str, name: str, surname: str, role: str,
+                 address: str, created_at: str = str(datetime.now()), rate: float = 0, products: list = None,
+                 comments: list = None, chats: list = None, blocked: bool = False, verified: bool = False,
+                 verification_code: int = -1, profile_img_url: str = "deneme.url"):
+        self._id = _id
         self.chats = chats
-        self.id = id
         self.email = email
         self.password = password
         self.name = name
