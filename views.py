@@ -73,7 +73,7 @@ def add_user_page():
         password = hasher.hash(form.data['password'])
 
         if db.get_user_by_email(email) is None:
-            new_user = User(_id="", name=name, surname=surname, role=role, address=address, email=email,
+            new_user = User(id="", name=name, surname=surname, role=role, address=address, email=email,
                             password=password)
             db.insert_user(new_user)
 
