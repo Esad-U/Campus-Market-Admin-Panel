@@ -27,3 +27,11 @@ def index():
 @login_required
 def home():
     return render_template("home.html")
+
+
+@login_required
+def logout():
+    logout_user()
+    flash("You have logged out")
+
+    return redirect(url_for("index"))
