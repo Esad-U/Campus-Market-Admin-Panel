@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Comments{% endblock %}
+
+{% block body %}
+    <h1>Comments List</h1>
+    <hr>
+
+    {% if comments %}
+        <form action="" method="post" name="comments_list" onsubmit="return confirm('Are you sure you wish to delete?');">
+            <div class="form-group">
+                <button class="btn btn-danger btn-md">Delete Selected Comments</button>
+            </div>
+            <table class="table is-striped is-fullwidth">
+                <tr>
+                    <th>Select</th>
+                    <th>Target Email</th>
+                    <th>Author Email</th>
+                    <th>Is Accepted?</th>
+                    <th>Rate</th>
+                    <th>Creation Time</th>
+                    <th>Update Time</th>
+                </tr>
+                {% for comment in comments %}
+                    <tr>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" name="comment_keys" value="{{ comment[2]._id }}"/>
+                            </label>
+                        </td>
+                        <td>{{ comment[0] }}</td>
+                        <td>{{ comment[1] }}</td>
+                        <td>{{ comment[2].is_accepted }}</td>
+                        <td>{{ comment[2].rate }}</td>
+                        <td>{{ comment[2].created_at }}</td>
+                        <td>{{ comment[2].updated_at }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </form>
+    {% endif %}
+{% endblock %}

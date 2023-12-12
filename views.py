@@ -103,3 +103,20 @@ def change_password_page():
             return redirect(url_for('profile_page'))
 
     return render_template('change_password.html', form=form)
+
+
+@login_required
+def comments_page():
+    db = current_app.config["dbconfig"]
+
+    if request.method == 'GET':
+        comments = db.get_comments()
+        return render_template("comments.html", comments=comments)
+    else:
+        form_comment_keys = request.form.getlist("comment_keys")
+        if len(form_comment_keys) == 0:
+            flash("Choose comments to delete.")
+        else:
+            for key in form_comment_keys:
+                db.delete_comment(key)
+        return redirect(url_for("comments_page"))

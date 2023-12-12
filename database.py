@@ -71,3 +71,29 @@ class Database:
             db = client[self.dbname]
 
             db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})
+
+    def get_user_email(self, uid):
+        oid = ObjectId(uid)
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            email = db['users'].find_one(filter={'_id': oid})['email']
+
+        return email
+
+    def get_comments(self):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            comments = db['comments'].find().sort('is_accepted', 1)
+
+            comment_list = []
+            if comments is not None:
+                for comment in comments:
+                    comment_list.append((self.get_user_email(comment['comment_to']), self.get_user_email(comment['author']),
+                                         comment))
+
+        return comment_list
+
+    def delete_comment(self, _id):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            db['comments'].delete_one({'_id': ObjectId(_id)})
