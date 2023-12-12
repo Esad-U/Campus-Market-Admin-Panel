@@ -34,6 +34,9 @@
                         <td>{{ comment[2].rate }}</td>
                         <td>{{ comment[2].created_at }}</td>
                         <td>{{ comment[2].updated_at }}</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('comment_page', comment_id=comment[2]._id) }}">Inspect</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>

@@ -120,3 +120,15 @@ def comments_page():
             for key in form_comment_keys:
                 db.delete_comment(key)
         return redirect(url_for("comments_page"))
+
+
+@login_required
+def comment_page(comment_id):
+    db = current_app.config["dbconfig"]
+
+    if request.method == "GET":
+        comment = db.get_comment_by_id(comment_id)
+        return render_template("comment.html", comment=comment)
+    else:
+        db.accept_comment(comment_id)
+        return redirect(url_for("comments_page"))

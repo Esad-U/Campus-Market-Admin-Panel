@@ -97,3 +97,19 @@ class Database:
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             db['comments'].delete_one({'_id': ObjectId(_id)})
+
+    def get_comment_by_id(self, _id):
+        oid = ObjectId(_id)
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            comment = db['comments'].find_one({'_id': oid})
+
+        return_val = (self.get_user_email(comment['comment_to']), self.get_user_email(comment['author']), comment)
+
+        return return_val
+
+    def accept_comment(self, _id):
+        oid = ObjectId(_id)
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            db['comments'].update_one({'_id': oid}, {'$set': {'is_accepted': True}})

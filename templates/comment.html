@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %}Comment Page{% endblock %}
+
+{% block body %}
+    <h1>Comment Information</h1>
+    <hr>
+    <div class="card card-body">
+        <table class="table is-fullwidth table-hover">
+            <tr>
+                <th>Author</th>
+                <td>{{ comment[1] }}</td>
+            </tr>
+            <tr>
+                <th>Target User</th>
+                <td>{{ comment[0] }}</td>
+            </tr>
+            <tr>
+                <th>Comment</th>
+                <td>{{ comment[2].comment }}</td>
+            </tr>
+            <tr>
+                <th>Is Accepted?</th>
+                <td>{{ comment[2].is_accepted }}</td>
+            </tr>
+            {% if not comment[2].is_accepted %}
+                <form action="" method="post" name="accept" onsubmit="return confirm('Are you sure you wish to accept?');">
+                    <button class="btn btn-primary btn-md">Accept Comment</button>
+                </form>
+            {% endif %}
+        </table>
+    </div>
+{% endblock %}

@@ -28,6 +28,7 @@ def create_app():
     app.add_url_rule("/change-password", view_func=views.change_password_page, methods=["GET", "POST"])
 
     app.add_url_rule("/comments", view_func=views.comments_page, methods=["GET", "POST"])
+    app.add_url_rule("/comment/<comment_id>", view_func=views.comment_page, methods=["GET", "POST"])
 
     app.config["dbconfig"] = Database(uri=uri, dbname='CampusMarket')
 
