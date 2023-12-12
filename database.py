@@ -3,14 +3,14 @@ from bson import ObjectId
 from models.user import User
 from datetime import datetime
 
+
 class Database:
-    def __init__(self, url: str, port: int, dbname: str):
-        self.url = url
-        self.port = port
+    def __init__(self, uri: str, dbname: str):
+        self.uri = uri
         self.dbname = dbname
 
     def get_user_by_email(self, email: str):
-        with MongoClient(host=self.url, port=self.port) as client:
+        with MongoClient(self.uri) as client:
             db = client[self.dbname]
             user = db['users'].find_one({'email': email})
 
@@ -27,7 +27,7 @@ class Database:
         return found_user
 
     def get_users(self):
-        with MongoClient(host=self.url, port=self.port) as client:
+        with MongoClient(self.uri) as client:
             db = client[self.dbname]
             users = db['users'].find().sort('role', 1)
 
@@ -39,12 +39,12 @@ class Database:
         return user_list
 
     def delete_user(self, _id):
-        with MongoClient(host=self.url, port=self.port) as client:
+        with MongoClient(self.uri) as client:
             db = client[self.dbname]
             db['users'].delete_one({'_id': ObjectId(_id)})
 
     def insert_user(self, user):
-        with MongoClient(host=self.url, port=self.port) as client:
+        with MongoClient(self.uri) as client:
             db = client[self.dbname]
             inserted_id = db['users'].insert_one({
                 'chats': user.chats,
@@ -67,7 +67,7 @@ class Database:
         return inserted_id
 
     def update_password(self, user, new_pw):
-        with MongoClient(host=self.url, port=self.port) as client:
+        with MongoClient(self.uri) as client:
             db = client[self.dbname]
 
             db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})

@@ -7,6 +7,8 @@ from database import Database
 
 lm = LoginManager()
 
+uri = "mongodb+srv://admin:admin12345@campusmarket.dedlc0d.mongodb.net/?retryWrites=true&w=majority"
+
 
 @lm.user_loader
 def load_user(user_id):
@@ -25,7 +27,7 @@ def create_app():
     app.add_url_rule("/profile", view_func=views.profile_page)
     app.add_url_rule("/change-password", view_func=views.change_password_page, methods=["GET", "POST"])
 
-    app.config["dbconfig"] = Database(url='localhost', port=27017, dbname='CampusMarket')
+    app.config["dbconfig"] = Database(uri=uri, dbname='CampusMarket')
 
     lm.init_app(app)
     lm.login_view = "index"
