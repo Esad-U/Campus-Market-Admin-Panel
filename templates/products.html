@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+    <h1>Products List</h1>
+    <hr>
+    {% if products %}
+        <form action="" method="post" name="products_list" onsubmit="return confirm('Are you sure you wish to delete?');">
+            <div class="form-group">
+                <button class="btn btn-danger btn-md">Delete Selected Products</button>
+            </div>
+            <table class="table is-striped is-fullwidth">
+                <tr>
+                    <th>Select</th>
+                    <th>Product Id</th>
+                    <th>Owner E-Mail</th>
+                    <th>Title</th>
+                    <th>Price (TRY)</th>
+                    <th>Category</th>
+                    <th>Creation Time</th>
+                    <th>Is Sold?</th>
+                </tr>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" name="comment_keys" value="{{ product[2]._id }}"/>
+                            </label>
+                        </td>
+                        <td>{{ product[2]._id }}</td>
+                        <td>{{ product[0] }}</td>
+                        <td>{{ product[2].title }}</td>
+                        <td>{{ product[2].price }}</td>
+                        <td>{{ product[1] }}</td>
+                        <td>{{ product[2].created_at }}</td>
+                        <td>{{ product[2].is_sold }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </form>
+    {% endif %}
+{% endblock %}

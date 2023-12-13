@@ -33,6 +33,8 @@ def create_app():
 
     app.add_url_rule("/chats", view_func=views.chats_page, methods=["GET", "POST"])
 
+    app.add_url_rule("/products", view_func=views.products_page, methods=["GET", "POST"])
+
     app.config["dbconfig"] = Database(uri=uri, dbname='CampusMarket')
 
     lm.init_app(app)

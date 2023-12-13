@@ -153,3 +153,28 @@ def chats_page():
     if request.method == "GET":
         chats = db.get_chats()
         return render_template("chats.html", chats=chats)
+    else:
+        form_chat_keys = request.form.getlist("chat_keys")
+        if len(form_chat_keys) == 0:
+            flash("Choose chats to delete.")
+        else:
+            for key in form_chat_keys:
+                db.delete_chat(key)
+        return redirect(url_for("chats_page"))
+
+
+@login_required
+def products_page():
+    db = current_app.config["dbconfig"]
+
+    if request.method == "GET":
+        products = db.get_products()
+        return render_template("products.html", products=products)
+    else:
+        form_prod_keys = request.form.getlist("prod_keys")
+        if len(form_prod_keys) == 0:
+            flash("Choose products to delete.")
+        else:
+            for key in form_prod_keys:
+                db.delete_product(key)
+        return redirect("products_page")

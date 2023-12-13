@@ -126,3 +126,26 @@ class Database:
                 chat_list.append((email_a, email_b, chat))
 
         return chat_list
+
+    def delete_chat(self, _id):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            db['chats'].delete_one({'_id': ObjectId(_id)})
+
+    def get_products(self):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            query = db['products'].find().sort('created_at', 1)
+
+            prod_list = []
+            for prod in query:
+                email = db['users'].find_one({'_id': ObjectId(prod['user_id'])})['email']
+                category = db['categories'].find_one({'_id': ObjectId(prod['category_id'])})['category_name']
+                prod_list.append((email, category, prod))
+
+        return prod_list
+
+    def delete_product(self, _id):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            db['products'].delete_one({'_id': ObjectId(_id)})
