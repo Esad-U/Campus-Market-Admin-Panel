@@ -29,6 +29,9 @@ def create_app():
 
     app.add_url_rule("/comments", view_func=views.comments_page, methods=["GET", "POST"])
     app.add_url_rule("/comment/<comment_id>", view_func=views.comment_page, methods=["GET", "POST"])
+    app.add_url_rule("/accept-comment/<comment_id>", view_func=views.accept_comment, methods=["GET"])
+
+    app.add_url_rule("/chats", view_func=views.chats_page, methods=["GET", "POST"])
 
     app.config["dbconfig"] = Database(uri=uri, dbname='CampusMarket')
 

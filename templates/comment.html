@@ -24,8 +24,9 @@
                 <td>{{ comment[2].is_accepted }}</td>
             </tr>
             {% if not comment[2].is_accepted %}
-                <form action="" method="post" name="accept" onsubmit="return confirm('Are you sure you wish to accept?');">
-                    <button class="btn btn-primary btn-md">Accept Comment</button>
+                <a class="btn btn-primary btn-md" href="{{ url_for('accept_comment', comment_id=comment[2]._id) }}">Accept Comment</a>
+                <form action="" method="post" name="reject" onsubmit="return confirm('Are you sure you wish to reject?');">
+                    <button class="btn btn-danger btn-md">Reject Comment</button>
                 </form>
             {% endif %}
         </table>

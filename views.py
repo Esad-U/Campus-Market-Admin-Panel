@@ -1,4 +1,4 @@
-from flask import render_template, current_app, flash, request, url_for, redirect
+from flask import render_template, current_app, flash, request, url_for, redirect, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from passlib.hash import pbkdf2_sha256 as hasher
 from forms import *
@@ -130,5 +130,26 @@ def comment_page(comment_id):
         comment = db.get_comment_by_id(comment_id)
         return render_template("comment.html", comment=comment)
     else:
-        db.accept_comment(comment_id)
+        db.delete_comment(comment_id)
         return redirect(url_for("comments_page"))
+
+
+@login_required
+def accept_comment(comment_id):
+    db = current_app.config["dbconfig"]
+
+    if db.get_comment_by_id(comment_id)[2]['is_accepted']:
+        flash("Comment is already accepted")
+        return redirect(url_for("comments-page"))
+
+    db.accept_comment(comment_id)
+    return redirect(url_for("comments_page"))
+
+
+@login_required
+def chats_page():
+    db = current_app.config["dbconfig"]
+
+    if request.method == "GET":
+        chats = db.get_chats()
+        return render_template("chats.html", chats=chats)

@@ -113,3 +113,16 @@ class Database:
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             db['comments'].update_one({'_id': oid}, {'$set': {'is_accepted': True}})
+
+    def get_chats(self):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            query = db['chats'].find().sort('updated_at', 1)
+
+            chat_list = []
+            for chat in query:
+                email_a = db['users'].find_one({'_id': ObjectId(chat['from_id'])})['email']
+                email_b = db['users'].find_one({'_id': ObjectId(chat['to_id'])})['email']
+                chat_list.append((email_a, email_b, chat))
+
+        return chat_list
