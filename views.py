@@ -177,4 +177,39 @@ def products_page():
         else:
             for key in form_prod_keys:
                 db.delete_product(key)
-        return redirect("products_page")
+        return redirect(url_for("products_page"))
+
+
+@login_required
+def categories_page():
+    db = current_app.config["dbconfig"]
+
+    if request.method == "GET":
+        categories = db.get_categories()
+        return render_template("categories.html", categories=categories)
+    else:
+        form_category_keys = request.form.getlist("category_keys")
+        if len(form_category_keys) == 0:
+            flash("Choose categories to delete.")
+        else:
+            for key in form_category_keys:
+                db.delete_category(key)
+        return redirect(url_for("categories_page"))
+
+
+@login_required
+def add_category_page():
+    form = AddCategoryForm()
+    db = current_app.config["dbconfig"]
+
+    if form.validate_on_submit():
+        name = form.data['name']
+
+        if not db.category_exists(name):
+            db.insert_category(name)
+
+            return redirect(url_for('categories_page'))
+        else:
+            flash('This category already exists.')
+
+    return render_template('add_category.html', form=form)

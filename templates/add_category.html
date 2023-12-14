@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block title %}Add Category{% endblock %}
+
+{% block body %}
+    <h1>Add Category Form</h1>
+    <hr>
+    <div>
+        <form action="" method="post">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="name" class="col-form-label">Category Name:</label>
+                {{ form.name(required=True, autofocus=True, class='form-control', placeholder='Name') }}
+            </div>
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+
+            <button class="btn btn-primary btn-block mb-4">Save</button>
+        </form>
+    </div>
+{% endblock %}

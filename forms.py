@@ -21,3 +21,7 @@ class AddUserForm(FlaskForm):
 class ChangePasswordForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     validation = PasswordField("Password Again", validators=[DataRequired()])
+
+
+class AddCategoryForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])

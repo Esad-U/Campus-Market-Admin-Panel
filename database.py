@@ -149,3 +149,39 @@ class Database:
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             db['products'].delete_one({'_id': ObjectId(_id)})
+
+    def get_categories(self):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            query = db['categories'].find()
+
+            if query is not None:
+                category_list = [c for c in query]
+            else:
+                category_list = None
+
+        return category_list
+
+    def delete_category(self, _id):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            db['categories'].delete_one({'_id': ObjectId(_id)})
+
+    def category_exists(self, name):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            query = db['categories'].find_one({'category_name': name.lower()})
+
+        if query is None:
+            return False
+
+        return True
+
+    def insert_category(self, name):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            inserted_id = db['categories'].insert_one({
+                'category_name': name.lower()
+            })
+
+        return inserted_id
