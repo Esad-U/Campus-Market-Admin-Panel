@@ -213,3 +213,93 @@ def add_category_page():
             flash('This category already exists.')
 
     return render_template('add_category.html', form=form)
+
+
+@login_required
+def search_users():
+    if request.method == 'GET':
+        return redirect(url_for('home'))
+    else:
+        db = current_app.config['dbconfig']
+        keyword = request.form.get('keyword')
+
+        users = db.search_users(keyword)
+
+        if not len(users):
+            flash("Could not find any data about given keyword: '" + keyword + "'")
+            users = db.get_users()
+            return render_template("users.html", users=users)
+
+    return render_template("users.html", users=users)
+
+
+@login_required
+def search_comments():
+    if request.method == 'GET':
+        return redirect(url_for('home'))
+    else:
+        db = current_app.config['dbconfig']
+        keyword = request.form.get('keyword')
+
+        comments = db.search_comments(keyword)
+
+        if not len(comments):
+            flash("Could not find any data about given keyword: '" + keyword + "'")
+            comments = db.get_comments()
+            return render_template("comments.html", comments=comments)
+
+    return render_template("comments.html", comments=comments)
+
+
+@login_required
+def search_chats():
+    if request.method == 'GET':
+        return redirect(url_for('home'))
+    else:
+        db = current_app.config['dbconfig']
+        keyword = request.form.get('keyword')
+
+        chats = db.search_chats(keyword)
+
+        if not len(chats):
+            flash("Could not find any data about given keyword: '" + keyword + "'")
+            chats = db.get_chats()
+            return render_template("chats.html", chats=chats)
+
+    return render_template("chats.html", chats=chats)
+
+
+@login_required
+def search_products():
+    if request.method == 'GET':
+        return redirect(url_for('home'))
+    else:
+        db = current_app.config['dbconfig']
+        keyword = request.form.get('keyword')
+
+        prods = db.search_products(keyword)
+
+        if not len(prods):
+            flash("Could not find any data about given keyword: '" + keyword + "'")
+            prods = db.get_products()
+            return render_template("products.html", products=prods)
+
+    return render_template("products.html", products=prods)
+
+
+@login_required
+def search_categories():
+    if request.method == 'GET':
+        return redirect(url_for('home'))
+    else:
+        db = current_app.config['dbconfig']
+        keyword = request.form.get('keyword')
+
+        categories = db.search_categories(keyword)
+
+        if not len(categories):
+            flash("Could not find any data about given keyword: '" + keyword + "'")
+            categories = db.get_categories()
+            return render_template("categories.html", categories=categories)
+
+    return render_template("categories.html", categories=categories)

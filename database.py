@@ -185,3 +185,81 @@ class Database:
             })
 
         return inserted_id
+
+    def search_users(self, keyword):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            query = db['users'].find({'email': {'$regex': f'.*{keyword}.*'}})
+
+            if query is not None:
+                user_list = [a for a in query]
+            else:
+                user_list = None
+
+        return user_list
+
+    def search_comments(self, keyword):
+        comments = []
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            oids = db['users'].find({'email': {'$regex': f'.*{keyword}.*'}}).distinct('_id')
+
+            if oids:
+                for oid in oids:
+                    query = db['comments'].find_one({'comment_to': str(oid)})
+                    target = db['users'].find_one({'_id': ObjectId(query['comment_to'])})['email']
+                    author = db['users'].find_one({'_id': ObjectId(query['author'])})['email']
+
+                    comments.append((target, author, query))
+            else:
+                print("Not found")
+
+        return comments
+
+    def search_chats(self, keyword):
+        chats = []
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            oids = db['users'].find({'email': {'$regex': f'.*{keyword}.*'}}).distinct('_id')
+
+            if oids:
+                for oid in oids:
+                    query = db['chats'].find_one({'from_id': str(oid)})
+                    fr = db['users'].find_one({'_id': ObjectId(query['from_id'])})['email']
+                    to = db['users'].find_one({'_id': ObjectId(query['to_id'])})['email']
+
+                    chats.append((fr, to, query))
+            else:
+                print("Not found")
+
+        return chats
+
+    def search_products(self, keyword):
+        prods = []
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            oids = db['users'].find({'email': {'$regex': f'.*{keyword}.*'}}).distinct('_id')
+
+            if oids:
+                for oid in oids:
+                    query = db['products'].find_one({'user_id': str(oid)})
+                    user = db['users'].find_one({'_id': ObjectId(query['user_id'])})['email']
+                    category = db['categories'].find_one({'_id': ObjectId(query['category_id'])})['category_name']
+
+                    prods.append((user, category, query))
+            else:
+                print("Not found")
+
+        return prods
+
+    def search_categories(self, keyword):
+        with MongoClient(self.uri) as client:
+            db = client[self.dbname]
+            query = db['categories'].find({'category_name': {'$regex': f'.*{keyword}.*'}})
+
+            if query is not None:
+                categories_list = [a for a in query]
+            else:
+                categories_list = None
+
+        return categories_list
