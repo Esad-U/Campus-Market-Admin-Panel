@@ -8,6 +8,7 @@ from database import Database
 lm = LoginManager()
 
 uri = "mongodb+srv://admin:admin12345@campusmarket.dedlc0d.mongodb.net/?retryWrites=true&w=majority"
+url = "https://tnglgfyhba.execute-api.eu-central-1.amazonaws.com"
 
 
 @lm.user_loader
@@ -44,7 +45,7 @@ def create_app():
     app.add_url_rule("/add-category", view_func=views.add_category_page, methods=["GET", "POST"])
     app.add_url_rule("/search_categories", view_func=views.search_categories, methods=["GET", "POST"])
 
-    app.config["dbconfig"] = Database(uri=uri, dbname='CampusMarket')
+    app.config["dbconfig"] = Database(uri=uri, url=url, dbname='CampusMarket')
 
     lm.init_app(app)
     lm.login_view = "index"

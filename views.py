@@ -1,5 +1,6 @@
 from flask import render_template, current_app, flash, request, url_for, redirect, abort
 from flask_login import login_user, logout_user, login_required, current_user
+from flask_paginate import Pagination, get_page_parameter
 from passlib.hash import pbkdf2_sha256 as hasher
 from forms import *
 from login_functions import get_user
@@ -44,8 +45,20 @@ def users_page():
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
-        users = db.get_users()
-        return render_template("users.html", users=users)
+        users = db.get_users_api()
+        # Pagination parameters
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        per_page = 10  # Number of items per page
+        offset = (page - 1) * per_page
+        total = len(users)
+
+        # Paginate the users
+        paginated_users = users[offset: offset + per_page]
+
+        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='users',
+                                css_framework='bootstrap4')
+
+        return render_template("users.html", users=paginated_users, pagination=pagination)
     else:
         form_user_keys = request.form.getlist("user_keys")
         if len(form_user_keys) == 0:

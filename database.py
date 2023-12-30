@@ -2,11 +2,14 @@ from pymongo import MongoClient
 from bson import ObjectId
 from models.user import User
 from datetime import datetime
+import requests
+import json
 
 
 class Database:
-    def __init__(self, uri: str, dbname: str):
+    def __init__(self, uri: str, url: str, dbname: str):
         self.uri = uri
+        self.url = url
         self.dbname = dbname
 
     def get_user_by_email(self, email: str):
@@ -37,6 +40,27 @@ class Database:
                 user_list = None
 
         return user_list
+
+    def get_users_api(self):
+        url = self.url + '/dev/admin-getAllDataFromAnyTable'
+        payload = json.dumps({
+            "table": "User",
+            "page": 1,
+            "limit": 30,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        parsed_body = json.loads(response.json()['body'])
+
+        # Access the 'data' key to get the list of elements
+        data_list = json.loads(parsed_body['data'])
+
+        return data_list
 
     def delete_user(self, _id):
         with MongoClient(self.uri) as client:
