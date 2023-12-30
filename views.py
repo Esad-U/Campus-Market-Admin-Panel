@@ -66,7 +66,9 @@ def users_page():
         else:
             for key in form_user_keys:
                 if key != str(current_user.id):
-                    db.delete_user(key)
+                    status_code = db.delete_user_api(key)
+                    if status_code != 200:
+                        abort(status_code)
                 else:
                     flash("You cannot delete your own user.")
         return redirect(url_for("users_page"))

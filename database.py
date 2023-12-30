@@ -62,6 +62,23 @@ class Database:
 
         return data_list
 
+    def delete_user_api(self, _id):
+        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
+        payload = json.dumps({
+            "id": _id[10:-2],
+            "table": "User",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        print(response.text)
+
+        return response.json()['statusCode']
+
     def delete_user(self, _id):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
