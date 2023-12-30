@@ -29,18 +29,6 @@ class Database:
 
         return found_user
 
-    def get_users(self):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            users = db['users'].find().sort('role', 1)
-
-            if users is not None:
-                user_list = [a for a in users]
-            else:
-                user_list = None
-
-        return user_list
-
     def get_users_api(self):
         url = self.url + '/dev/admin-getAllDataFromAnyTable'
         payload = json.dumps({
@@ -75,14 +63,35 @@ class Database:
 
         response = requests.request("POST", url, headers=headers, data=payload)
 
-        print(response.text)
+        return response.json()['statusCode']
+
+    def block_user_api(self, _id):
+        url = self.url + '/dev/admin-blockUserWithId'
+        payload = json.dumps({
+            "userIdToBlock": _id[10:-2],
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
 
         return response.json()['statusCode']
 
-    def delete_user(self, _id):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            db['users'].delete_one({'_id': ObjectId(_id)})
+    def unblock_user_api(self, _id):
+        url = self.url + '/dev/admin-unblockUserWithId'
+        payload = json.dumps({
+            "userIdToUnblock": _id[10:-2],
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        return response.json()['statusCode']
 
     def insert_user(self, user):
         with MongoClient(self.uri) as client:
@@ -134,6 +143,43 @@ class Database:
 
         return comment_list
 
+    def get_comments_api(self):
+        url = self.url + '/dev/admin-getAllDataFromAnyTable'
+
+        payload = json.dumps({
+            "table": "Comment",
+            "page": 1,
+            "limit": 30,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        parsed_body = json.loads(response.json()['body'])
+
+        # Access the 'data' key to get the list of elements
+        data_list = json.loads(parsed_body['data'])
+
+        return data_list
+
+    def delete_comment_api(self, _id):
+        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
+        payload = json.dumps({
+            "id": _id[10:-2],
+            "table": "Comment",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        return response.json()['statusCode']
+
     def delete_comment(self, _id):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
@@ -155,6 +201,28 @@ class Database:
             db = client[self.dbname]
             db['comments'].update_one({'_id': oid}, {'$set': {'is_accepted': True}})
 
+    def get_chats_api(self):
+        url = self.url + '/dev/admin-getAllDataFromAnyTable'
+
+        payload = json.dumps({
+            "table": "Chat",
+            "page": 1,
+            "limit": 30,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        parsed_body = json.loads(response.json()['body'])
+
+        # Access the 'data' key to get the list of elements
+        data_list = json.loads(parsed_body['data'])
+
+        return data_list
+
     def get_chats(self):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
@@ -168,64 +236,115 @@ class Database:
 
         return chat_list
 
+    def delete_chat_api(self, _id):
+        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
+        payload = json.dumps({
+            "id": _id[10:-2],
+            "table": "Chat",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        return response.json()['statusCode']
+
     def delete_chat(self, _id):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             db['chats'].delete_one({'_id': ObjectId(_id)})
 
-    def get_products(self):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            query = db['products'].find().sort('created_at', 1)
+    def get_products_api(self):
+        url = self.url + '/dev/admin-getAllDataFromAnyTable'
 
-            prod_list = []
-            for prod in query:
-                email = db['users'].find_one({'_id': ObjectId(prod['user_id'])})['email']
-                category = db['categories'].find_one({'_id': ObjectId(prod['category_id'])})['category_name']
-                prod_list.append((email, category, prod))
+        payload = json.dumps({
+            "table": "Product",
+            "page": 1,
+            "limit": 30,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
 
-        return prod_list
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-    def delete_product(self, _id):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            db['products'].delete_one({'_id': ObjectId(_id)})
+        parsed_body = json.loads(response.json()['body'])
 
-    def get_categories(self):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            query = db['categories'].find()
+        # Access the 'data' key to get the list of elements
+        data_list = json.loads(parsed_body['data'])
 
-            if query is not None:
-                category_list = [c for c in query]
-            else:
-                category_list = None
+        return data_list
 
-        return category_list
+    def delete_product_api(self, _id):
+        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
+        payload = json.dumps({
+            "id": _id[10:-2],
+            "table": "Product",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
 
-    def delete_category(self, _id):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            db['categories'].delete_one({'_id': ObjectId(_id)})
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-    def category_exists(self, name):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            query = db['categories'].find_one({'category_name': name.lower()})
+        return response.json()['statusCode']
 
-        if query is None:
-            return False
+    def get_categories_api(self):
+        url = self.url + '/dev/admin-getAllDataFromAnyTable'
 
-        return True
+        payload = json.dumps({
+            "table": "Category",
+            "page": 1,
+            "limit": 30,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
 
-    def insert_category(self, name):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            inserted_id = db['categories'].insert_one({
-                'category_name': name.lower()
-            })
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-        return inserted_id
+        parsed_body = json.loads(response.json()['body'])
+
+        # Access the 'data' key to get the list of elements
+        data_list = json.loads(parsed_body['data'])
+
+        return data_list
+
+    def delete_category_api(self, _id):
+        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
+        payload = json.dumps({
+            "id": _id[10:-2],
+            "table": "Category",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        return response.json()['statusCode']
+
+    def insert_category_api(self, name):
+        url = self.url + '/dev/admin-addOrRemoveCategory'
+
+        payload = json.dumps({
+            "action": "add_category",
+            "categoryName": name,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        return response.json()['statusCode']
 
     def search_users(self, keyword):
         with MongoClient(self.uri) as client:

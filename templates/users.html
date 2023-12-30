@@ -72,6 +72,15 @@
           <td>
             {{ user.rate }}
           </td>
+          {% if not user.blocked and user.role != 'admin' %}
+          <td>
+              <a class="btn btn-danger btn-sm" href="{{ url_for('block_user', user_id=user._id) }}">Block</a>
+          </td>
+          {% elif user.blocked and user.role != 'admin' %}
+          <td>
+              <a class="btn btn-primary btn-sm" href="{{ url_for('unblock_user', user_id=user._id) }}">Unblock</a>
+          </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </table>

@@ -36,13 +36,13 @@
                     <tr>
                         <td>
                             <label class="checkbox">
-                                <input type="checkbox" name="chat_keys" value="{{ chat[2]._id }}"/>
+                                <input type="checkbox" name="chat_keys" value="{{ chat._id }}"/>
                             </label>
                         </td>
-                        <td>{{ chat[0] }}</td>
-                        <td>{{ chat[1] }}</td>
-                        <td>{{ chat[2].created_at }}</td>
-                        <td>{{ chat[2].updated_at }}</td>
+                        <td>{{ chat.fromId }}</td>
+                        <td>{{ chat.toId }}</td>
+                        <td>{{ chat.created_at }}</td>
+                        <td>{{ chat.updated_at }}</td>
                     </tr>
                 {% endfor %}
             </table>

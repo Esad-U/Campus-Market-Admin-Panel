@@ -8,6 +8,7 @@ from models.user import User
 
 
 def index():
+    # ToDo: Login lambda function issue mut be solved
     if current_user.is_authenticated:
         # Redirect them away from the intended URL (e.g., a form submission URL)
         return redirect(url_for('home'))
@@ -42,6 +43,7 @@ def logout():
 
 @login_required
 def users_page():
+    """ Linked To API """
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
@@ -76,6 +78,8 @@ def users_page():
 
 @login_required
 def add_user_page():
+    # ToDo: Waiting for the lambda function
+
     form = AddUserForm()
     db = current_app.config["dbconfig"]
 
@@ -100,12 +104,40 @@ def add_user_page():
 
 
 @login_required
+def block_user(user_id):
+    """ Linked to API """
+    db = current_app.config["dbconfig"]
+
+    status_code = db.block_user_api(user_id)
+
+    if status_code != 200:
+        abort(status_code)
+
+    return redirect(url_for("users_page"))
+
+
+@login_required
+def unblock_user(user_id):
+    """ Linked to API """
+    db = current_app.config["dbconfig"]
+
+    status_code = db.unblock_user_api(user_id)
+
+    if status_code != 200:
+        abort(status_code)
+
+    return redirect(url_for("users_page"))
+
+
+@login_required
 def profile_page():
+    # ToDo: Will be discussed
     return render_template('user_profile.html', user=current_user)
 
 
 @login_required
 def change_password_page():
+    # ToDo: Waiting for the lambda function
     form = ChangePasswordForm()
 
     if form.validate_on_submit():
@@ -122,6 +154,7 @@ def change_password_page():
 
 @login_required
 def comments_page():
+    # ToDo: Database issue will be discussed
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
@@ -139,6 +172,7 @@ def comments_page():
 
 @login_required
 def comment_page(comment_id):
+    # ToDo: Get comment by id lambda will be needed
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
@@ -151,6 +185,7 @@ def comment_page(comment_id):
 
 @login_required
 def accept_comment(comment_id):
+    # ToDo: To be linked with API
     db = current_app.config["dbconfig"]
 
     if db.get_comment_by_id(comment_id)[2]['is_accepted']:
@@ -163,6 +198,7 @@ def accept_comment(comment_id):
 
 @login_required
 def chats_page():
+    # ToDO: Waiting for the database
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
@@ -180,56 +216,90 @@ def chats_page():
 
 @login_required
 def products_page():
+    """ Linked to API """
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
-        products = db.get_products()
-        return render_template("products.html", products=products)
+        products = db.get_products_api()
+        # Pagination parameters
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        per_page = 10  # Number of items per page
+        offset = (page - 1) * per_page
+        total = len(products)
+
+        # Paginate the products
+        paginated_products = products[offset: offset + per_page]
+
+        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='users',
+                                css_framework='bootstrap4')
+
+        return render_template("products.html", products=paginated_products, pagination=pagination)
     else:
         form_prod_keys = request.form.getlist("prod_keys")
         if len(form_prod_keys) == 0:
             flash("Choose products to delete.")
         else:
             for key in form_prod_keys:
-                db.delete_product(key)
+                status_code = db.delete_product_api(key)
+                if status_code != 200:
+                    abort(status_code)
         return redirect(url_for("products_page"))
 
 
 @login_required
 def categories_page():
+    """ Linked to API """
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
-        categories = db.get_categories()
-        return render_template("categories.html", categories=categories)
+        categories = db.get_categories_api()
+        # Pagination parameters
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        per_page = 10  # Number of items per page
+        offset = (page - 1) * per_page
+        total = len(categories)
+
+        # Paginate the categories
+        paginated_products = categories[offset: offset + per_page]
+
+        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='users',
+                                css_framework='bootstrap4')
+
+        return render_template("categories.html", categories=categories, pagination=pagination)
     else:
         form_category_keys = request.form.getlist("category_keys")
         if len(form_category_keys) == 0:
             flash("Choose categories to delete.")
         else:
             for key in form_category_keys:
-                db.delete_category(key)
+                status_code = db.delete_category_api(key)
+                if status_code != 200:
+                    abort(status_code)
         return redirect(url_for("categories_page"))
 
 
 @login_required
 def add_category_page():
+    """ Linked to API """
     form = AddCategoryForm()
     db = current_app.config["dbconfig"]
 
     if form.validate_on_submit():
         name = form.data['name']
 
-        if not db.category_exists(name):
-            db.insert_category(name)
+        status_code = db.insert_category_api(name)
 
-            return redirect(url_for('categories_page'))
+        if status_code == 400:
+            flash("This category already exists!")
+        elif status_code != 200:
+            abort(status_code)
         else:
-            flash('This category already exists.')
+            return redirect(url_for("categories_page"))
 
     return render_template('add_category.html', form=form)
 
 
+# ToDo: All search functionalities will be dicussed
 @login_required
 def search_users():
     if request.method == 'GET':

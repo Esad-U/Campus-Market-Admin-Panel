@@ -28,27 +28,25 @@
                 <tr>
                     <th>Select</th>
                     <th>Product Id</th>
-                    <th>Owner E-Mail</th>
+                    <th>Owner Id</th>
                     <th>Title</th>
                     <th>Price (TRY)</th>
                     <th>Category</th>
-                    <th>Creation Time</th>
                     <th>Is Sold?</th>
                 </tr>
                 {% for product in products %}
                     <tr>
                         <td>
                             <label class="checkbox">
-                                <input type="checkbox" name="comment_keys" value="{{ product[2]._id }}"/>
+                                <input type="checkbox" name="prod_keys" value="{{ product._id }}"/>
                             </label>
                         </td>
-                        <td>{{ product[2]._id }}</td>
-                        <td>{{ product[0] }}</td>
-                        <td>{{ product[2].title }}</td>
-                        <td>{{ product[2].price }}</td>
-                        <td>{{ product[1] }}</td>
-                        <td>{{ product[2].created_at }}</td>
-                        <td>{{ product[2].is_sold }}</td>
+                        <td>{{ product._id }}</td>
+                        <td>{{ product.userId }}</td>
+                        <td>{{ product.title }}</td>
+                        <td>{{ product.price }}</td>
+                        <td>{{ product.categoryId }}</td>
+                        <td>{{ product.isSold }}</td>
                     </tr>
                 {% endfor %}
             </table>
