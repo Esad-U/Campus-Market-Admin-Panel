@@ -77,33 +77,6 @@ def users_page():
 
 
 @login_required
-def add_user_page():
-    # ToDo: Waiting for the lambda function
-
-    form = AddUserForm()
-    db = current_app.config["dbconfig"]
-
-    if form.validate_on_submit():
-        name = form.data['name']
-        surname = form.data['surname']
-        role = form.data['role']
-        address = form.data['address']
-        email = form.data['email']
-        password = hasher.hash(form.data['password'])
-
-        if db.get_user_by_email(email) is None:
-            new_user = User(id="", name=name, surname=surname, role=role, address=address, email=email,
-                            password=password)
-            db.insert_user(new_user)
-
-            return redirect(url_for('users_page'))
-        else:
-            flash('A user with this email already exists')
-
-    return render_template('add_user_page.html', form=form)
-
-
-@login_required
 def block_user(user_id):
     """ Linked to API """
     db = current_app.config["dbconfig"]

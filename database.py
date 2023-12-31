@@ -93,29 +93,6 @@ class Database:
 
         return response.json()['statusCode']
 
-    def insert_user(self, user):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            inserted_id = db['users'].insert_one({
-                'chats': user.chats,
-                'email': user.email,
-                'password': user.password,
-                'name': user.name,
-                'surname': user.surname,
-                'role': user.role,
-                'created_at': user.created_at,
-                'blocked': user.blocked,
-                'verified': user.verified,
-                'verificationCode': user.verification_code,
-                'address': user.address,
-                'rate': user.rate,
-                'profile_image_url': user.profile_img_url,
-                'products': user.products,
-                'comments': user.comments
-            })
-
-        return inserted_id
-
     def update_password(self, user, new_pw):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
