@@ -9,22 +9,22 @@
         <table class="table is-fullwidth table-hover">
             <tr>
                 <th>Author</th>
-                <td>{{ comment[1] }}</td>
+                <td>{{ comment['author'] }}</td>
             </tr>
             <tr>
                 <th>Target User</th>
-                <td>{{ comment[0] }}</td>
+                <td>{{ comment['comment_to'] }}</td>
             </tr>
             <tr>
                 <th>Comment</th>
-                <td>{{ comment[2].comment }}</td>
+                <td>{{ comment['comment'] }}</td>
             </tr>
             <tr>
-                <th>Is Accepted?</th>
-                <td>{{ comment[2].is_accepted }}</td>
+                <th>Is Verified?</th>
+                <td>{{ comment['isVerified'] }}</td>
             </tr>
-            {% if not comment[2].is_accepted %}
-                <a class="btn btn-primary btn-md" href="{{ url_for('accept_comment', comment_id=comment[2]._id) }}">Accept Comment</a>
+            {% if not comment['isVerified'] %}
+                <a class="btn btn-primary btn-md" href="{{ url_for('accept_comment', comment_id=comment['_id']) }}">Accept Comment</a>
                 <form action="" method="post" name="reject" onsubmit="return confirm('Are you sure you wish to reject?');">
                     <button class="btn btn-danger btn-md">Reject Comment</button>
                 </form>

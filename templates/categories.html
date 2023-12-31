@@ -43,6 +43,11 @@
                     </tr>
                 {% endfor %}
             </table>
+            <nav aria-label="Page navigation example">
+              <ul class="pagination justify-content-end">
+                {{ pagination.links }}
+              </ul>
+            </nav>
         </form>
     {% endif %}
 {% endblock %}

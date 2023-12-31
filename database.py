@@ -107,22 +107,8 @@ class Database:
 
         return email
 
-    def get_comments(self):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            comments = db['comments'].find().sort('is_accepted', 1)
-
-            comment_list = []
-            if comments is not None:
-                for comment in comments:
-                    comment_list.append((self.get_user_email(comment['comment_to']), self.get_user_email(comment['author']),
-                                         comment))
-
-        return comment_list
-
     def get_comments_api(self):
         url = self.url + '/dev/admin-getAllDataFromAnyTable'
-
         payload = json.dumps({
             "table": "Comment",
             "page": 1,
@@ -157,20 +143,20 @@ class Database:
 
         return response.json()['statusCode']
 
-    def delete_comment(self, _id):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            db['comments'].delete_one({'_id': ObjectId(_id)})
+    def verify_comment_api(self, _id):
+        url = self.url + '/dev/admin-verifyCommentAndUpdateRate'
 
-    def get_comment_by_id(self, _id):
-        oid = ObjectId(_id)
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            comment = db['comments'].find_one({'_id': oid})
+        payload = json.dumps({
+            "commentId": _id[10:-2],
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
 
-        return_val = (self.get_user_email(comment['comment_to']), self.get_user_email(comment['author']), comment)
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-        return return_val
+        return response.json()['statusCode'], response.json()['body']
 
     def accept_comment(self, _id):
         oid = ObjectId(_id)

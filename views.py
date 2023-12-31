@@ -1,4 +1,4 @@
-from flask import render_template, current_app, flash, request, url_for, redirect, abort
+from flask import render_template, current_app, flash, request, url_for, redirect, abort, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_paginate import Pagination, get_page_parameter
 from passlib.hash import pbkdf2_sha256 as hasher
@@ -127,32 +127,51 @@ def change_password_page():
 
 @login_required
 def comments_page():
-    # ToDo: Database issue will be discussed
+    """ Linked to API """
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
-        comments = db.get_comments()
-        return render_template("comments.html", comments=comments)
+        comments = db.get_comments_api()
+        session['comments_list'] = comments
+        # Pagination parameters
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        per_page = 10  # Number of items per page
+        offset = (page - 1) * per_page
+        total = len(comments)
+
+        # Paginate the users
+        paginated_comments = comments[offset: offset + per_page]
+
+        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='comments',
+                                css_framework='bootstrap4')
+
+        return render_template("comments.html", comments=paginated_comments, pagination=pagination)
     else:
         form_comment_keys = request.form.getlist("comment_keys")
         if len(form_comment_keys) == 0:
             flash("Choose comments to delete.")
         else:
             for key in form_comment_keys:
-                db.delete_comment(key)
+                status_code = db.delete_comment_api(key)
+                if status_code != 200:
+                    abort(status_code)
         return redirect(url_for("comments_page"))
 
 
 @login_required
 def comment_page(comment_id):
-    # ToDo: Get comment by id lambda will be needed
-    db = current_app.config["dbconfig"]
-
+    """ Linked to API """
+    comment = None
+    for c in session['comments_list']:
+        print(f"{c['_id']} - {comment_id}")
+        if str(c['_id'])[10:-2] == comment_id[10:-2]:
+            comment = c
+            break
     if request.method == "GET":
-        comment = db.get_comment_by_id(comment_id)
         return render_template("comment.html", comment=comment)
     else:
-        db.delete_comment(comment_id)
+        db = current_app.config["dbconfig"]
+        db.delete_comment_api(comment_id)
         return redirect(url_for("comments_page"))
 
 
@@ -161,12 +180,14 @@ def accept_comment(comment_id):
     # ToDo: To be linked with API
     db = current_app.config["dbconfig"]
 
-    if db.get_comment_by_id(comment_id)[2]['is_accepted']:
-        flash("Comment is already accepted")
-        return redirect(url_for("comments-page"))
+    status_code, resp_body = db.verify_comment_api(comment_id)
 
-    db.accept_comment(comment_id)
-    return redirect(url_for("comments_page"))
+    if status_code == 200:
+        flash("Comment is accepted!")
+        return redirect(url_for("comments_page"))
+    else:
+        flash(resp_body)
+        return redirect(url_for("comments_page"))
 
 
 @login_required
