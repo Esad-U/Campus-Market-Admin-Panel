@@ -1,14 +1,9 @@
-from pymongo import MongoClient
-from bson import ObjectId
-from models.user import User
-from datetime import datetime
 import requests
 import json
 
 
 class Database:
-    def __init__(self, uri: str, url: str, dbname: str):
-        self.uri = uri
+    def __init__(self, url: str, dbname: str):
         self.url = url
         self.dbname = dbname
 
@@ -48,6 +43,11 @@ class Database:
 
         # Access the 'data' key to get the list of elements
         data_list = json.loads(parsed_body['data'])
+
+        if table == 'Comment':
+            data_list = sorted(data_list, key=lambda x: x['isVerified'])
+        elif table == 'User':
+            data_list = sorted(data_list, key=lambda x: x['role'])
 
         return data_list
 
@@ -94,11 +94,11 @@ class Database:
 
         return response.json()['statusCode']
 
-    def update_password(self, user, new_pw):
+    """def update_password(self, user, new_pw):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
 
-            db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})
+            db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})"""
 
     def verify_comment_api(self, _id, token):
         url = self.url + '/dev/admin-verifyCommentAndUpdateRate'
@@ -115,7 +115,7 @@ class Database:
 
         return response.json()['statusCode'], response.json()['body']
 
-    def get_chats(self):
+    """def get_chats(self):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             query = db['chats'].find().sort('updated_at', 1)
@@ -131,7 +131,7 @@ class Database:
     def delete_chat(self, _id):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
-            db['chats'].delete_one({'_id': ObjectId(_id)})
+            db['chats'].delete_one({'_id': ObjectId(_id)})"""
 
     def insert_category_api(self, name, token):
         url = self.url + '/dev/admin-addOrRemoveCategory'
@@ -149,7 +149,7 @@ class Database:
 
         return response.json()['statusCode']
 
-    def search_users(self, keyword):
+    """def search_users(self, keyword):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             query = db['users'].find({'email': {'$regex': f'.*{keyword}.*'}})
@@ -179,24 +179,6 @@ class Database:
 
         return comments
 
-    def search_chats(self, keyword):
-        chats = []
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            oids = db['users'].find({'email': {'$regex': f'.*{keyword}.*'}}).distinct('_id')
-
-            if oids:
-                for oid in oids:
-                    query = db['chats'].find_one({'from_id': str(oid)})
-                    fr = db['users'].find_one({'_id': ObjectId(query['from_id'])})['email']
-                    to = db['users'].find_one({'_id': ObjectId(query['to_id'])})['email']
-
-                    chats.append((fr, to, query))
-            else:
-                print("Not found")
-
-        return chats
-
     def search_products(self, keyword):
         prods = []
         with MongoClient(self.uri) as client:
@@ -225,4 +207,4 @@ class Database:
             else:
                 categories_list = None
 
-        return categories_list
+        return categories_list"""

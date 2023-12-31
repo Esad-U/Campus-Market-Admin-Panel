@@ -7,7 +7,6 @@ from database import Database
 
 lm = LoginManager()
 
-uri = "mongodb+srv://admin:admin12345@campusmarket.dedlc0d.mongodb.net/?retryWrites=true&w=majority"
 url = "https://tnglgfyhba.execute-api.eu-central-1.amazonaws.com"
 
 
@@ -36,8 +35,8 @@ def create_app():
     app.add_url_rule("/search_comments", view_func=views.search_comments, methods=["GET", "POST"])
     app.add_url_rule("/accept-comment/<comment_id>", view_func=views.accept_comment, methods=["GET"])
 
-    app.add_url_rule("/chats", view_func=views.chats_page, methods=["GET", "POST"])
-    app.add_url_rule("/search_chats", view_func=views.search_chats, methods=["GET", "POST"])
+    # app.add_url_rule("/chats", view_func=views.chats_page, methods=["GET", "POST"])
+    # app.add_url_rule("/search_chats", view_func=views.search_chats, methods=["GET", "POST"])
 
     app.add_url_rule("/products", view_func=views.products_page, methods=["GET", "POST"])
     app.add_url_rule("/search_products", view_func=views.search_products, methods=["GET", "POST"])
@@ -46,7 +45,7 @@ def create_app():
     app.add_url_rule("/add-category", view_func=views.add_category_page, methods=["GET", "POST"])
     app.add_url_rule("/search_categories", view_func=views.search_categories, methods=["GET", "POST"])
 
-    app.config["dbconfig"] = Database(uri=uri, url=url, dbname='CampusMarket')
+    app.config["dbconfig"] = Database(url=url, dbname='CampusMarket')
 
     lm.init_app(app)
     lm.login_view = "index"

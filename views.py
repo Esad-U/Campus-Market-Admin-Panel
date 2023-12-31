@@ -1,9 +1,7 @@
 from flask import render_template, current_app, flash, request, url_for, redirect, abort, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_paginate import Pagination, get_page_parameter
-from passlib.hash import pbkdf2_sha256 as hasher
 from forms import *
-from login_functions import get_user
 from models.user import User
 
 
@@ -194,7 +192,7 @@ def accept_comment(comment_id):
         return redirect(url_for("comments_page"))
 
 
-@login_required
+"""@login_required
 def chats_page():
     # ToDO: Waiting for the database
     db = current_app.config["dbconfig"]
@@ -209,7 +207,7 @@ def chats_page():
         else:
             for key in form_chat_keys:
                 db.delete_chat(key)
-        return redirect(url_for("chats_page"))
+        return redirect(url_for("chats_page"))"""
 
 
 @login_required
@@ -332,24 +330,6 @@ def search_comments():
             return render_template("comments.html", comments=comments)
 
     return render_template("comments.html", comments=comments)
-
-
-@login_required
-def search_chats():
-    if request.method == 'GET':
-        return redirect(url_for('home'))
-    else:
-        db = current_app.config['dbconfig']
-        keyword = request.form.get('keyword')
-
-        chats = db.search_chats(keyword)
-
-        if not len(chats):
-            flash("Could not find any data about given keyword: '" + keyword + "'")
-            chats = db.get_chats()
-            return render_template("chats.html", chats=chats)
-
-    return render_template("chats.html", chats=chats)
 
 
 @login_required

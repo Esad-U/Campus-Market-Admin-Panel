@@ -71,7 +71,7 @@
             {{ user.blocked }}
           </td>
           <td>
-            {{ user.rate }}
+            {{ user.rate | round(2) }}
           </td>
           {% if not user.blocked and user.role != 'admin' %}
           <td>
