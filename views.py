@@ -47,7 +47,7 @@ def users_page():
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
-        users = db.get_users_api()
+        users = db.get_all_data_from_table('User')
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = 10  # Number of items per page
@@ -68,7 +68,7 @@ def users_page():
         else:
             for key in form_user_keys:
                 if key != str(current_user.id):
-                    status_code = db.delete_user_api(key)
+                    status_code = db.delete_data_from_table(key, 'User')
                     if status_code != 200:
                         abort(status_code)
                 else:
@@ -131,7 +131,7 @@ def comments_page():
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
-        comments = db.get_comments_api()
+        comments = db.get_all_data_from_table('Comment')
         session['comments_list'] = comments
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
@@ -152,7 +152,7 @@ def comments_page():
             flash("Choose comments to delete.")
         else:
             for key in form_comment_keys:
-                status_code = db.delete_comment_api(key)
+                status_code = db.delete_data_from_table(key, 'Comment')
                 if status_code != 200:
                     abort(status_code)
         return redirect(url_for("comments_page"))
@@ -163,7 +163,6 @@ def comment_page(comment_id):
     """ Linked to API """
     comment = None
     for c in session['comments_list']:
-        print(f"{c['_id']} - {comment_id}")
         if str(c['_id'])[10:-2] == comment_id[10:-2]:
             comment = c
             break
@@ -171,13 +170,15 @@ def comment_page(comment_id):
         return render_template("comment.html", comment=comment)
     else:
         db = current_app.config["dbconfig"]
-        db.delete_comment_api(comment_id)
+        status_code = db.delete_data_from_table(comment_id, 'Comment')
+        if status_code != 200:
+            abort(status_code)
         return redirect(url_for("comments_page"))
 
 
 @login_required
 def accept_comment(comment_id):
-    # ToDo: To be linked with API
+    """ Linked to API """
     db = current_app.config["dbconfig"]
 
     status_code, resp_body = db.verify_comment_api(comment_id)
@@ -214,7 +215,7 @@ def products_page():
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
-        products = db.get_products_api()
+        products = db.get_all_data_from_table('Product')
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = 10  # Number of items per page
@@ -234,7 +235,7 @@ def products_page():
             flash("Choose products to delete.")
         else:
             for key in form_prod_keys:
-                status_code = db.delete_product_api(key)
+                status_code = db.delete_data_from_table(key, 'Product')
                 if status_code != 200:
                     abort(status_code)
         return redirect(url_for("products_page"))
@@ -246,7 +247,7 @@ def categories_page():
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
-        categories = db.get_categories_api()
+        categories = db.get_all_data_from_table('Category')
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = 10  # Number of items per page
@@ -266,7 +267,7 @@ def categories_page():
             flash("Choose categories to delete.")
         else:
             for key in form_category_keys:
-                status_code = db.delete_category_api(key)
+                status_code = db.delete_data_from_table(key, 'Category')
                 if status_code != 200:
                     abort(status_code)
         return redirect(url_for("categories_page"))
@@ -293,7 +294,7 @@ def add_category_page():
     return render_template('add_category.html', form=form)
 
 
-# ToDo: All search functionalities will be dicussed
+# ToDo: All search functionalities will be discussed
 @login_required
 def search_users():
     if request.method == 'GET':

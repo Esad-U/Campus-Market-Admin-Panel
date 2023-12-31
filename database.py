@@ -29,12 +29,10 @@ class Database:
 
         return found_user
 
-    def get_users_api(self):
+    def get_all_data_from_table(self, table):
         url = self.url + '/dev/admin-getAllDataFromAnyTable'
         payload = json.dumps({
-            "table": "User",
-            "page": 1,
-            "limit": 30,
+            "table": table,
             "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
         })
         headers = {
@@ -50,11 +48,11 @@ class Database:
 
         return data_list
 
-    def delete_user_api(self, _id):
+    def delete_data_from_table(self, _id, table):
         url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
         payload = json.dumps({
             "id": _id[10:-2],
-            "table": "User",
+            "table": table,
             "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
         })
         headers = {
@@ -99,50 +97,6 @@ class Database:
 
             db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})
 
-    def get_user_email(self, uid):
-        oid = ObjectId(uid)
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            email = db['users'].find_one(filter={'_id': oid})['email']
-
-        return email
-
-    def get_comments_api(self):
-        url = self.url + '/dev/admin-getAllDataFromAnyTable'
-        payload = json.dumps({
-            "table": "Comment",
-            "page": 1,
-            "limit": 30,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        parsed_body = json.loads(response.json()['body'])
-
-        # Access the 'data' key to get the list of elements
-        data_list = json.loads(parsed_body['data'])
-
-        return data_list
-
-    def delete_comment_api(self, _id):
-        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
-        payload = json.dumps({
-            "id": _id[10:-2],
-            "table": "Comment",
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        return response.json()['statusCode']
-
     def verify_comment_api(self, _id):
         url = self.url + '/dev/admin-verifyCommentAndUpdateRate'
 
@@ -158,34 +112,6 @@ class Database:
 
         return response.json()['statusCode'], response.json()['body']
 
-    def accept_comment(self, _id):
-        oid = ObjectId(_id)
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            db['comments'].update_one({'_id': oid}, {'$set': {'is_accepted': True}})
-
-    def get_chats_api(self):
-        url = self.url + '/dev/admin-getAllDataFromAnyTable'
-
-        payload = json.dumps({
-            "table": "Chat",
-            "page": 1,
-            "limit": 30,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        parsed_body = json.loads(response.json()['body'])
-
-        # Access the 'data' key to get the list of elements
-        data_list = json.loads(parsed_body['data'])
-
-        return data_list
-
     def get_chats(self):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
@@ -199,99 +125,10 @@ class Database:
 
         return chat_list
 
-    def delete_chat_api(self, _id):
-        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
-        payload = json.dumps({
-            "id": _id[10:-2],
-            "table": "Chat",
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        return response.json()['statusCode']
-
     def delete_chat(self, _id):
         with MongoClient(self.uri) as client:
             db = client[self.dbname]
             db['chats'].delete_one({'_id': ObjectId(_id)})
-
-    def get_products_api(self):
-        url = self.url + '/dev/admin-getAllDataFromAnyTable'
-
-        payload = json.dumps({
-            "table": "Product",
-            "page": 1,
-            "limit": 30,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        parsed_body = json.loads(response.json()['body'])
-
-        # Access the 'data' key to get the list of elements
-        data_list = json.loads(parsed_body['data'])
-
-        return data_list
-
-    def delete_product_api(self, _id):
-        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
-        payload = json.dumps({
-            "id": _id[10:-2],
-            "table": "Product",
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        return response.json()['statusCode']
-
-    def get_categories_api(self):
-        url = self.url + '/dev/admin-getAllDataFromAnyTable'
-
-        payload = json.dumps({
-            "table": "Category",
-            "page": 1,
-            "limit": 30,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        parsed_body = json.loads(response.json()['body'])
-
-        # Access the 'data' key to get the list of elements
-        data_list = json.loads(parsed_body['data'])
-
-        return data_list
-
-    def delete_category_api(self, _id):
-        url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
-        payload = json.dumps({
-            "id": _id[10:-2],
-            "table": "Category",
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        return response.json()['statusCode']
 
     def insert_category_api(self, name):
         url = self.url + '/dev/admin-addOrRemoveCategory'
