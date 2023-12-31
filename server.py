@@ -23,8 +23,8 @@ def create_app():
     app.add_url_rule("/", view_func=views.index, methods=["GET", "POST"])
     app.add_url_rule("/home", view_func=views.home)
     app.add_url_rule("/logout", view_func=views.logout)
-    app.add_url_rule("/profile", view_func=views.profile_page)
-    app.add_url_rule("/change-password", view_func=views.change_password_page, methods=["GET", "POST"])
+    # app.add_url_rule("/profile", view_func=views.profile_page)
+    # app.add_url_rule("/change-password", view_func=views.change_password_page, methods=["GET", "POST"])
 
     app.add_url_rule("/users", view_func=views.users_page, methods=["GET", "POST"])
     app.add_url_rule("/search_users", view_func=views.search_users, methods=["GET", "POST"])

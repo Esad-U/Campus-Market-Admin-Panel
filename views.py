@@ -8,23 +8,28 @@ from models.user import User
 
 
 def index():
-    # ToDo: Login lambda function issue mut be solved
+    """ Linked to API """
+    session['token'] = ""
     if current_user.is_authenticated:
         # Redirect them away from the intended URL (e.g., a form submission URL)
         return redirect(url_for('home'))
 
     form = LoginForm()
+    db = current_app.config["dbconfig"]
     if form.validate_on_submit():
         email = form.data["email"]
-        user = get_user(email)
-        if user is not None and user.role == 'admin':
-            password = form.data["password"]
-            if hasher.verify(password, user.password):
-                login_user(user)
-                flash("You have logged in")
-                next_page = request.args.get("next", url_for("home"))
-                return redirect(next_page)
-        flash("Invalid credentials")
+        password = form.data["password"]
+
+        status_code, body = db.admin_login(email, password)
+
+        if status_code == 200:
+            session['token'] = body['token']
+            user = User(body['token'], email)
+            login_user(user)
+            flash("You have logged in")
+            next_page = request.args.get("next", url_for("home"))
+            return redirect(next_page)
+        flash(body)
     return render_template("index.html", form=form)
 
 
@@ -36,6 +41,7 @@ def home():
 @login_required
 def logout():
     logout_user()
+    session['token'] = ""
     flash("You have logged out")
 
     return redirect(url_for("index"))
@@ -47,7 +53,7 @@ def users_page():
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
-        users = db.get_all_data_from_table('User')
+        users = db.get_all_data_from_table('User', current_user.token)
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = 10  # Number of items per page
@@ -67,12 +73,9 @@ def users_page():
             flash("Choose users to delete.")
         else:
             for key in form_user_keys:
-                if key != str(current_user.id):
-                    status_code = db.delete_data_from_table(key, 'User')
-                    if status_code != 200:
-                        abort(status_code)
-                else:
-                    flash("You cannot delete your own user.")
+                status_code = db.delete_data_from_table(key, 'User', current_user.token)
+                if status_code != 200:
+                    abort(status_code)
         return redirect(url_for("users_page"))
 
 
@@ -81,7 +84,7 @@ def block_user(user_id):
     """ Linked to API """
     db = current_app.config["dbconfig"]
 
-    status_code = db.block_user_api(user_id)
+    status_code = db.block_user_api(user_id, current_user.token)
 
     if status_code != 200:
         abort(status_code)
@@ -94,7 +97,7 @@ def unblock_user(user_id):
     """ Linked to API """
     db = current_app.config["dbconfig"]
 
-    status_code = db.unblock_user_api(user_id)
+    status_code = db.unblock_user_api(user_id, current_user.token)
 
     if status_code != 200:
         abort(status_code)
@@ -102,13 +105,13 @@ def unblock_user(user_id):
     return redirect(url_for("users_page"))
 
 
-@login_required
+"""@login_required
 def profile_page():
     # ToDo: Will be discussed
-    return render_template('user_profile.html', user=current_user)
+    return render_template('user_profile.html', user=current_user)"""
 
 
-@login_required
+"""@login_required
 def change_password_page():
     # ToDo: Waiting for the lambda function
     form = ChangePasswordForm()
@@ -122,7 +125,7 @@ def change_password_page():
 
             return redirect(url_for('profile_page'))
 
-    return render_template('change_password.html', form=form)
+    return render_template('change_password.html', form=form)"""
 
 
 @login_required
@@ -131,7 +134,7 @@ def comments_page():
     db = current_app.config["dbconfig"]
 
     if request.method == 'GET':
-        comments = db.get_all_data_from_table('Comment')
+        comments = db.get_all_data_from_table('Comment', current_user.token)
         session['comments_list'] = comments
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
@@ -152,7 +155,7 @@ def comments_page():
             flash("Choose comments to delete.")
         else:
             for key in form_comment_keys:
-                status_code = db.delete_data_from_table(key, 'Comment')
+                status_code = db.delete_data_from_table(key, 'Comment', current_user.token)
                 if status_code != 200:
                     abort(status_code)
         return redirect(url_for("comments_page"))
@@ -170,7 +173,7 @@ def comment_page(comment_id):
         return render_template("comment.html", comment=comment)
     else:
         db = current_app.config["dbconfig"]
-        status_code = db.delete_data_from_table(comment_id, 'Comment')
+        status_code = db.delete_data_from_table(comment_id, 'Comment', current_user.token)
         if status_code != 200:
             abort(status_code)
         return redirect(url_for("comments_page"))
@@ -181,7 +184,7 @@ def accept_comment(comment_id):
     """ Linked to API """
     db = current_app.config["dbconfig"]
 
-    status_code, resp_body = db.verify_comment_api(comment_id)
+    status_code, resp_body = db.verify_comment_api(comment_id, current_user.token)
 
     if status_code == 200:
         flash("Comment is accepted!")
@@ -215,7 +218,7 @@ def products_page():
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
-        products = db.get_all_data_from_table('Product')
+        products = db.get_all_data_from_table('Product', current_user.token)
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = 10  # Number of items per page
@@ -235,7 +238,7 @@ def products_page():
             flash("Choose products to delete.")
         else:
             for key in form_prod_keys:
-                status_code = db.delete_data_from_table(key, 'Product')
+                status_code = db.delete_data_from_table(key, 'Product', current_user.token)
                 if status_code != 200:
                     abort(status_code)
         return redirect(url_for("products_page"))
@@ -247,7 +250,7 @@ def categories_page():
     db = current_app.config["dbconfig"]
 
     if request.method == "GET":
-        categories = db.get_all_data_from_table('Category')
+        categories = db.get_all_data_from_table('Category', current_user.token)
         # Pagination parameters
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = 10  # Number of items per page
@@ -267,7 +270,7 @@ def categories_page():
             flash("Choose categories to delete.")
         else:
             for key in form_category_keys:
-                status_code = db.delete_data_from_table(key, 'Category')
+                status_code = db.delete_data_from_table(key, 'Category', current_user.token)
                 if status_code != 200:
                     abort(status_code)
         return redirect(url_for("categories_page"))
@@ -282,7 +285,7 @@ def add_category_page():
     if form.validate_on_submit():
         name = form.data['name']
 
-        status_code = db.insert_category_api(name)
+        status_code = db.insert_category_api(name, current_user.token)
 
         if status_code == 400:
             flash("This category already exists!")

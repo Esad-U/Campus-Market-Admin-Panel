@@ -40,9 +40,11 @@
         {% for user in users %}
         <tr>
           <td>
+            {% if user.role != 'admin' %}
             <label class="checkbox">
               <input type="checkbox" name="user_keys" value="{{ user._id }}"/>
             </label>
+            {% endif %}
           </td>
           <td>
             {{ user._id }}

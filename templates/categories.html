@@ -19,12 +19,12 @@
             </div>
         </div>
     </form>
-    {% if categories %}
         <form action="" method="post" name="categories_list" onsubmit="return confirm('Are you sure you wish to delete?');">
             <div class="form-group">
                 <button class="btn btn-danger btn-md">Delete Selected Categories</button>
                 <a href="{{ url_for('add_category_page') }}" class="btn btn-primary">Add Category</a>
             </div>
+            {% if categories %}
             <table class="table is-striped is-fullwidth">
                 <tr>
                     <th>Select</th>

@@ -12,28 +12,31 @@ class Database:
         self.url = url
         self.dbname = dbname
 
-    def get_user_by_email(self, email: str):
-        with MongoClient(self.uri) as client:
-            db = client[self.dbname]
-            user = db['users'].find_one({'email': email})
+    def admin_login(self, email, password):
+        url = self.url + '/dev/admin-login'
 
-        if user is not None:
-            found_user = User(chats=user['chats'], id=user['_id'], email=user['email'], password=user['password'],
-                              name=user['name'], surname=user['surname'], role=user['role'],
-                              created_at=user['created_at'], blocked=user['blocked'], verified=user['verified'],
-                              verification_code=user['verificationCode'], address=user['address'], rate=user['rate'],
-                              profile_img_url=user['profile_image_url'], products=user['products'],
-                              comments=user['comments'])
+        payload = json.dumps({
+            "email": email,
+            "password": password
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response_j = requests.request("POST", url, headers=headers, data=payload).json()
+
+        sc = response_j['statusCode']
+
+        if sc == 200:
+            return sc, json.loads(response_j['body'])
         else:
-            found_user = None
+            return sc, response_j['body']
 
-        return found_user
-
-    def get_all_data_from_table(self, table):
+    def get_all_data_from_table(self, table, token):
         url = self.url + '/dev/admin-getAllDataFromAnyTable'
         payload = json.dumps({
             "table": table,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+            "token": token,
         })
         headers = {
             'Content-Type': 'application/json'
@@ -48,12 +51,12 @@ class Database:
 
         return data_list
 
-    def delete_data_from_table(self, _id, table):
+    def delete_data_from_table(self, _id, table, token):
         url = self.url + '/dev/admin-deleteDataWithIdOnAnyTable'
         payload = json.dumps({
             "id": _id[10:-2],
             "table": table,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+            "token": token
         })
         headers = {
             'Content-Type': 'application/json'
@@ -63,11 +66,11 @@ class Database:
 
         return response.json()['statusCode']
 
-    def block_user_api(self, _id):
+    def block_user_api(self, _id, token):
         url = self.url + '/dev/admin-blockUserWithId'
         payload = json.dumps({
             "userIdToBlock": _id[10:-2],
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+            "token": token
         })
         headers = {
             'Content-Type': 'application/json'
@@ -77,11 +80,11 @@ class Database:
 
         return response.json()['statusCode']
 
-    def unblock_user_api(self, _id):
+    def unblock_user_api(self, _id, token):
         url = self.url + '/dev/admin-unblockUserWithId'
         payload = json.dumps({
             "userIdToUnblock": _id[10:-2],
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+            "token": token
         })
         headers = {
             'Content-Type': 'application/json'
@@ -97,12 +100,12 @@ class Database:
 
             db['users'].update_one({'email': user.email}, {'$set': {'password': new_pw}})
 
-    def verify_comment_api(self, _id):
+    def verify_comment_api(self, _id, token):
         url = self.url + '/dev/admin-verifyCommentAndUpdateRate'
 
         payload = json.dumps({
             "commentId": _id[10:-2],
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+            "token": token
         })
         headers = {
             'Content-Type': 'application/json'
@@ -130,13 +133,13 @@ class Database:
             db = client[self.dbname]
             db['chats'].delete_one({'_id': ObjectId(_id)})
 
-    def insert_category_api(self, name):
+    def insert_category_api(self, name, token):
         url = self.url + '/dev/admin-addOrRemoveCategory'
 
         payload = json.dumps({
             "action": "add_category",
             "categoryName": name,
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2RiMDgxMDM3MDlkNzg5MGNhMDNhOCJ9.v0tVEKUy73_pA3opvG7C4E0wWiaZ-MH8cG3D5223oFg"
+            "token": token
         })
         headers = {
             'Content-Type': 'application/json'
