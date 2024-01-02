@@ -40,6 +40,8 @@ def home():
 def logout():
     logout_user()
     session['token'] = ""
+    session['data'] = []
+    session['comments_list'] = []
     flash("You have logged out")
 
     return redirect(url_for("index"))
@@ -52,17 +54,9 @@ def users_page():
 
     if request.method == 'GET':
         users = db.get_all_data_from_table('User', current_user.token)
-        # Pagination parameters
-        page = request.args.get(get_page_parameter(), type=int, default=1)
-        per_page = 10  # Number of items per page
-        offset = (page - 1) * per_page
-        total = len(users)
+        session['data'] = users
 
-        # Paginate the users
-        paginated_users = users[offset: offset + per_page]
-
-        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='users',
-                                css_framework='bootstrap4')
+        paginated_users, pagination = pagination_function(users, 'users')
 
         return render_template("users.html", users=paginated_users, pagination=pagination)
     else:
@@ -103,29 +97,6 @@ def unblock_user(user_id):
     return redirect(url_for("users_page"))
 
 
-"""@login_required
-def profile_page():
-    # ToDo: Will be discussed
-    return render_template('user_profile.html', user=current_user)"""
-
-
-"""@login_required
-def change_password_page():
-    # ToDo: Waiting for the lambda function
-    form = ChangePasswordForm()
-
-    if form.validate_on_submit():
-        if form.data['password'] != form.data['validation']:
-            flash('Two passwords do not match. Enter again!')
-        else:
-            new_pw = hasher.hash(form.data['password'])
-            current_app.config['dbconfig'].update_password(current_user, new_pw)
-
-            return redirect(url_for('profile_page'))
-
-    return render_template('change_password.html', form=form)"""
-
-
 @login_required
 def comments_page():
     """ Linked to API """
@@ -134,17 +105,8 @@ def comments_page():
     if request.method == 'GET':
         comments = db.get_all_data_from_table('Comment', current_user.token)
         session['comments_list'] = comments
-        # Pagination parameters
-        page = request.args.get(get_page_parameter(), type=int, default=1)
-        per_page = 10  # Number of items per page
-        offset = (page - 1) * per_page
-        total = len(comments)
 
-        # Paginate the users
-        paginated_comments = comments[offset: offset + per_page]
-
-        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='comments',
-                                css_framework='bootstrap4')
+        paginated_comments, pagination = pagination_function(comments, 'comments')
 
         return render_template("comments.html", comments=paginated_comments, pagination=pagination)
     else:
@@ -217,17 +179,9 @@ def products_page():
 
     if request.method == "GET":
         products = db.get_all_data_from_table('Product', current_user.token)
-        # Pagination parameters
-        page = request.args.get(get_page_parameter(), type=int, default=1)
-        per_page = 10  # Number of items per page
-        offset = (page - 1) * per_page
-        total = len(products)
+        session['data'] = products
 
-        # Paginate the products
-        paginated_products = products[offset: offset + per_page]
-
-        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='users',
-                                css_framework='bootstrap4')
+        paginated_products, pagination = pagination_function(products, 'products')
 
         return render_template("products.html", products=paginated_products, pagination=pagination)
     else:
@@ -249,19 +203,11 @@ def categories_page():
 
     if request.method == "GET":
         categories = db.get_all_data_from_table('Category', current_user.token)
-        # Pagination parameters
-        page = request.args.get(get_page_parameter(), type=int, default=1)
-        per_page = 10  # Number of items per page
-        offset = (page - 1) * per_page
-        total = len(categories)
+        session['data'] = categories
 
-        # Paginate the categories
-        paginated_products = categories[offset: offset + per_page]
+        paginated_categories, pagination = pagination_function(categories, 'categories')
 
-        pagination = Pagination(page=page, per_page=per_page, total=total, record_name='users',
-                                css_framework='bootstrap4')
-
-        return render_template("categories.html", categories=categories, pagination=pagination)
+        return render_template("categories.html", categories=paginated_categories, pagination=pagination)
     else:
         form_category_keys = request.form.getlist("category_keys")
         if len(form_category_keys) == 0:
@@ -295,23 +241,23 @@ def add_category_page():
     return render_template('add_category.html', form=form)
 
 
-# ToDo: All search functionalities will be discussed
 @login_required
 def search_users():
     if request.method == 'GET':
         return redirect(url_for('home'))
     else:
-        db = current_app.config['dbconfig']
         keyword = request.form.get('keyword')
 
-        users = db.search_users(keyword)
+        users = [item for item in session['data'] if keyword.lower() in str(item['_id']).lower()]
 
         if not len(users):
-            flash("Could not find any data about given keyword: '" + keyword + "'")
-            users = db.get_users()
-            return render_template("users.html", users=users)
+            flash("Could not find any data related to given keyword: '" + keyword + "'")
+            paginated_users, pagination = pagination_function(session['data'], 'users')
+            return render_template("users.html", users=paginated_users, pagination=pagination)
 
-    return render_template("users.html", users=users)
+    paginated_users, pagination = pagination_function(users, 'users', len(users))
+
+    return render_template("users.html", users=paginated_users, pagination=pagination)
 
 
 @login_required
@@ -319,17 +265,18 @@ def search_comments():
     if request.method == 'GET':
         return redirect(url_for('home'))
     else:
-        db = current_app.config['dbconfig']
         keyword = request.form.get('keyword')
 
-        comments = db.search_comments(keyword)
+        comments = [item for item in session['comments_list'] if keyword.lower() in str(item['author']).lower()]
 
         if not len(comments):
-            flash("Could not find any data about given keyword: '" + keyword + "'")
-            comments = db.get_comments()
-            return render_template("comments.html", comments=comments)
+            flash("Could not find any data related to given keyword: '" + keyword + "'")
+            paginated_comments, pagination = pagination_function(session['comments_list'], 'comments')
+            return render_template("comments.html", comments=paginated_comments, pagination=pagination)
 
-    return render_template("comments.html", comments=comments)
+    paginated_comments, pagination = pagination_function(comments, 'comments', len(comments))
+
+    return render_template("comments.html", comments=paginated_comments, pagination=pagination)
 
 
 @login_required
@@ -337,17 +284,18 @@ def search_products():
     if request.method == 'GET':
         return redirect(url_for('home'))
     else:
-        db = current_app.config['dbconfig']
         keyword = request.form.get('keyword')
 
-        prods = db.search_products(keyword)
+        products = [item for item in session['data'] if keyword.lower() in str(item['categoryId']).lower()]
 
-        if not len(prods):
-            flash("Could not find any data about given keyword: '" + keyword + "'")
-            prods = db.get_products()
-            return render_template("products.html", products=prods)
+        if not len(products):
+            flash("Could not find any data related to given keyword: '" + keyword + "'")
+            paginated_products, pagination = pagination_function(session['data'], 'products')
+            return render_template("products.html", products=paginated_products, pagination=pagination)
 
-    return render_template("products.html", products=prods)
+    paginated_products, pagination = pagination_function(products, 'products', len(products))
+
+    return render_template("products.html", products=paginated_products, pagination=pagination)
 
 
 @login_required
@@ -355,14 +303,31 @@ def search_categories():
     if request.method == 'GET':
         return redirect(url_for('home'))
     else:
-        db = current_app.config['dbconfig']
         keyword = request.form.get('keyword')
 
-        categories = db.search_categories(keyword)
+        categories = [item for item in session['data'] if keyword.lower() in str(item['categoryName']).lower()]
 
         if not len(categories):
-            flash("Could not find any data about given keyword: '" + keyword + "'")
-            categories = db.get_categories()
-            return render_template("categories.html", categories=categories)
+            flash("Could not find any data related to given keyword: '" + keyword + "'")
+            paginated_categories, pagination = pagination_function(session['data'], 'categories')
+            return render_template("categories.html", categories=paginated_categories, pagination=pagination)
 
-    return render_template("categories.html", categories=categories)
+    paginated_categories, pagination = pagination_function(categories, 'products', len(categories))
+
+    return render_template("categories.html", categories=paginated_categories, pagination=pagination)
+
+
+def pagination_function(data, name, per_page=10):
+    # Pagination parameters
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    per_page = per_page  # Number of items per page
+    offset = (page - 1) * per_page
+    total = len(data)
+
+    # Paginate the data
+    paginated_data = data[offset: offset + per_page]
+
+    pagination = Pagination(page=page, per_page=per_page, total=total, record_name=name,
+                            css_framework='bootstrap4')
+
+    return paginated_data, pagination
